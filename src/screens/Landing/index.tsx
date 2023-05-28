@@ -4,6 +4,7 @@ import { Formik } from 'formik';
 import React, { FC, useState } from 'react';
 import { Editor } from '../../components/Editor';
 import QueryParamsInput from '../../features/QueryParamsInput';
+import BrowserTabs from '../../components/LayoutTabs';
 
 interface TabPanelProps {
     children?: React.ReactNode;
@@ -43,27 +44,22 @@ const Landing: FC = () => {
         <Formik
             initialValues={{
                 method: 'GET',
-                url: 'https://jsonplaceholder.typicode.com/todos/1',
+                url: 'https://jsonplaceholder.typicode.com/todos/',
                 params: [{ key: '', value: '' }],
                 body: {}
             }}
             onSubmit={async (data) => {
                 try {
+                    setLoading(true)
                     const params = data.params.reduce(
                         (obj, item) => {
-                            if (item.key && item.value)
-                                obj[item.key] = item.value
+                            if (item.key && item.value) obj[item.key] = item.value
                             return obj
-                        },
-                        {} as any);
-                    const res = await axios.request({ url: data.url, data: data.body, params, method: data.method })
+                        }, {} as any);
+                    const res = await axios.request({ url: data.url, data: data.body, params, method: data.method, })
                     setRes(res.data)
-                } catch (err) {
-                    console.log({ err })
-                }
-                finally {
-                    setLoading(false)
-                }
+                } catch (err) { console.log({ err }) }
+                finally { setLoading(false) }
 
             }}
         >
@@ -72,6 +68,7 @@ const Landing: FC = () => {
                     return (
                         <div style={{ padding: 36 }}>
                             <Container>
+                                <BrowserTabs />
                                 <Box width={'100%'} display={'flex'} >
                                     <Box>
                                         <FormControl style={{ width: 136 }} >
@@ -134,7 +131,7 @@ const Landing: FC = () => {
                                             position={'absolute'}
                                             top={0} bottom={0}
                                             left={0} right={0}
-                                            style={{ background: 'white', opacity: 0.5 }}
+                                            style={{ background: 'white', opacity: 0.9 }}
                                             display={'flex'}
                                             justifyContent={'center'}
                                             alignItems={'center'}

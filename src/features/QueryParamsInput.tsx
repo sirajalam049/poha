@@ -1,7 +1,7 @@
-import { Button, IconButton, Table, TableBody, TableCell, TableContainer, TableRow, TextField, Typography } from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { IconButton, TextField } from '@mui/material';
 import { FormikValues } from 'formik';
 import React, { FC, useState } from 'react';
-import DeleteIcon from '@mui/icons-material/Delete';
 
 export interface QueryParamsInputProps {
     formikProps: FormikValues
