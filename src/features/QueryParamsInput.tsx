@@ -1,6 +1,7 @@
-import { Button, Table, TableBody, TableCell, TableContainer, TableRow, TextField } from '@mui/material';
+import { Button, IconButton, Table, TableBody, TableCell, TableContainer, TableRow, TextField, Typography } from '@mui/material';
 import { FormikValues } from 'formik';
-import React, { FC } from 'react';
+import React, { FC, useState } from 'react';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 export interface QueryParamsInputProps {
     formikProps: FormikValues
@@ -8,16 +9,14 @@ export interface QueryParamsInputProps {
 
 const QueryParamsInput: FC<QueryParamsInputProps> = ({ formikProps }) => {
 
+    const [showDel, setShowDel] = useState(-1)
+
     const addRow = () => {
-        formikProps.setValues({
-            params: [...formikProps.values.params, { key: '', value: '' }],
-        });
+        formikProps.setFieldValue('params', [...formikProps.values.params, { key: '', value: '' }]);
     };
 
     const deleteRow = (index: number) => {
-        formikProps.setValues({
-            params: formikProps.values.params.filter((_: any, i: number) => i !== index),
-        });
+        formikProps.setFieldValue('params', formikProps.values.params.filter((_: any, i: number) => i !== index));
     };
 
     const handleKeyChange = (index: number, e: React.SyntheticEvent) => {
@@ -28,43 +27,50 @@ const QueryParamsInput: FC<QueryParamsInputProps> = ({ formikProps }) => {
     };
 
     return (
-        <TableContainer>
-            <Table>
-                <TableBody>
+        <table style={{ "width": '100%' }} >
+            <tbody>
+                <tr style={{ display: 'flex' }} >
+                    <td style={{ flex: 1 }} >Key</td>
+                    <td style={{ flex: 1 }}>Value</td>
+                </tr>
                     {formikProps.values.params.map((param: any, index: number) => (
-                        <TableRow key={index}>
-                            <TableCell>
+                        <tr
+                            onMouseEnter={() => { setShowDel(index) }}
+                            onMouseLeave={() => { setShowDel(-1) }}
+                            style={{ display: 'flex', position: 'relative' }} key={index}  >
+                            <td style={{ flex: 1 }}>
                                 <TextField
                                     fullWidth
                                     name={`params[${index}].key`}
                                     value={param.key}
                                     onChange={(e) => handleKeyChange(index, e)}
-                                    label="Key"
+                                    size='small'
+                                    placeholder='Key'
                                 />
-                            </TableCell>
-                            <TableCell>
+                            </td>
+                            <td style={{ flex: 1 }}>
                                 <TextField
                                     fullWidth
                                     name={`params[${index}].value`}
                                     value={param.value}
                                     onChange={formikProps.handleChange}
-                                    label="Value"
+                                    size='small'
+                                    placeholder='Value'
                                 />
-                            </TableCell>
-                            <TableCell>
+                            </td>
+                            <td>
                                 {
-                                    formikProps.values.params.length > 1 ?
-                                        <Button variant="contained" color="secondary" onClick={() => deleteRow(index)}>
-                                            Delete
-                                        </Button>
+                                    index === showDel && index < (formikProps.values.params.length - 1) ?
+                                        <IconButton style={{ position: 'absolute', right: '6px', top: '6px' }} size='small' onClick={() => deleteRow(index)}>
+                                            <DeleteIcon fontSize='small' />
+                                        </IconButton>
                                         : null
                                 }
-                            </TableCell>
-                        </TableRow>
+                            </td>
+                        </tr>
                     ))}
-                </TableBody>
-            </Table>
-        </TableContainer>
+            </tbody>
+        </table>
     )
 }
 

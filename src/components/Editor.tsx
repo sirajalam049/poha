@@ -1,39 +1,31 @@
 import React, { useRef, useEffect } from 'react';
 import * as monaco from 'monaco-editor';
 
-// @ts-ignore
-// eslint-disable-next-line
-window.MonacoEnvironment = {
-    getWorkerUrl: function (_moduleId: any, label: string) {
-        if (label === 'json') {
-            return './json.worker.bundle.js';
-        }
-        if (label === 'css' || label === 'scss' || label === 'less') {
-            return './css.worker.bundle.js';
-        }
-        if (label === 'html' || label === 'handlebars' || label === 'razor') {
-            return './html.worker.bundle.js';
-        }
-        if (label === 'typescript' || label === 'javascript') {
-            return './ts.worker.bundle.js';
-        }
-        return './editor.worker.bundle.js';
-    }
-};
+export interface EditorProps {
+    data: any
+}
 
-export const Editor: React.FC = () => {
+export const Editor: React.FC<EditorProps> = ({ data }) => {
     const divEl = useRef<HTMLDivElement>(null);
     useEffect(() => {
         let editor: monaco.editor.IStandaloneCodeEditor;
         if (divEl.current) {
             editor = monaco.editor.create(divEl.current, {
-                value: ['function x() {', '\tconsole.log("Hello world!");', '}'].join('\n'),
-                language: 'typescript'
+                value: undefined,
+                language: 'json',
+                minimap: {
+                    enabled: false
+                },
+                scrollBeyondLastLine: false
             });
+            const formattedJson = JSON.stringify(data, null, 4);
+            const model = monaco.editor.createModel(formattedJson, 'json');
+            editor.setModel(model);
+            monaco.editor.getModels()[0].updateOptions({ tabSize: 4 });
         }
         return () => {
             editor.dispose();
         };
-    }, []);
-    return <div className="Editor" ref={divEl}></div>;
+    }, [data]);
+    return <div style={{ height: '500px' }} ref={divEl}></div>;
 };
