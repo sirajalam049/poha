@@ -1,42 +1,16 @@
-import { Box, Button, Container, FormControl, MenuItem, Select, Tab, Tabs, TextField, Typography } from '@mui/material';
-import axios from 'axios';
-import { Formik } from 'formik';
-import React, { FC, useState } from 'react';
-import { Editor } from '../../components/Editor';
-import QueryParamsInput from '../../features/QueryParamsInput';
+import { FC, useState } from 'react'
+import { AppBar, Box } from '@mui/material'
+import { Formik } from 'formik'
+import PrimaryInputBar from '../PrimaryInputBar'
+import ReqSecondaryInput from '../ReqSecondaryInput'
+import ResBodyBox from '../ResBodyBox'
+import axios, { AxiosResponse } from 'axios'
 
-interface TabPanelProps {
-    children?: React.ReactNode;
-    currValue: string;
-    value: string;
-}
+export interface LandingProps { }
 
-function TabPanel(props: TabPanelProps) {
-    const { children, value, currValue, ...other } = props;
+const Landing: FC<LandingProps> = (props) => {
 
-    return (
-        <div
-            role="tabpanel"
-            hidden={value !== currValue}
-            id={`simple-tabpanel-${currValue}`}
-            aria-labelledby={`simple-tab-${currValue}`}
-            {...other}
-        >
-            {value === currValue && (
-                <Box sx={{ p: 3 }}>
-                    {children}
-                </Box>
-            )}
-        </div>
-    );
-}
-
-
-
-const Landing: FC = () => {
-
-    const [currTab, setCurrTab] = useState('params')
-    const [res, setRes] = useState();
+    const [res, setRes] = useState<AxiosResponse>();
     const [loading, setLoading] = useState(false)
 
     return (
@@ -56,7 +30,7 @@ const Landing: FC = () => {
                             return obj
                         }, {} as any);
                     const res = await axios.request({ url: data.url, data: data.body, params, method: data.method, })
-                    setRes(res.data)
+                    setRes(res)
                 } catch (err) { console.log({ err }) }
                 finally { setLoading(false) }
 
@@ -65,92 +39,22 @@ const Landing: FC = () => {
             {
                 formikProps => {
                     return (
-                        <div style={{ padding: 36 }}>
-                            <Container>
-
-                                {/* Input Box */}
-                                <Box width={'100%'} display={'flex'} >
-                                    <Box>
-                                        <FormControl style={{ width: 136 }} >
-                                            <Select
-                                                name={'method'}
-                                                size='small'
-                                                fullWidth
-                                                onChange={formikProps.handleChange}
-                                                value={formikProps.values.method}
-                                            >
-                                                {
-                                                    ['GET', 'POST', 'PUT', 'PATCH', 'DELETE',].map((x) => (
-                                                        <MenuItem value={x} key={x} >{
-                                                            <Typography variant='body2' >{x}</Typography>
-                                                        }</MenuItem>
-                                                    ))
-                                                }
-                                            </Select>
-                                        </FormControl>
-                                    </Box>
-                                    <Box flex={1} mx={0.5}>
-                                        <TextField
-                                            name={'url'}
-                                            size='small'
-                                            placeholder='Enter the API URL'
-                                            onChange={formikProps.handleChange}
-                                            value={formikProps.values.url}
-                                            fullWidth
-                                            style={{ fontSize: 14 }}
-                                        />
-                                    </Box>
-                                    <Button color='info' disableElevation style={{ width: 100 }} variant='contained' type="submit" onClick={formikProps.submitForm} >
-                                        SEND
-                                    </Button>
+                        <Box sx={{ flexGrow: 1, height: '100vh', display: 'flex', flexDirection: 'column' }} >
+                            <AppBar style={{ height: 48, backgroundColor: 'var(--Light-Grey, #D9D9D9)' }} color='default' position='static' >
+                            </AppBar>
+                            <Box flex={1} display={'flex'} flexDirection={'column'} style={{ backgroundColor: '#F4F4F6' }} p={4} >
+                                <Box display={'flex'} flexDirection={'column'} flex={1} bgcolor={'#fff'} p={2}>
+                                    <PrimaryInputBar formikProps={formikProps} />
+                                    <ReqSecondaryInput formikProps={formikProps} />
+                                    <ResBodyBox loading={formikProps.isSubmitting} axiosResponse={res} />
                                 </Box>
-
-                                {/* params, header or body */}
-                                <Box maxHeight={400} overflow={'scroll'} >
-                                    <Tabs textColor='inherit' indicatorColor='primary' value={currTab} onChange={(e, v) => { setCurrTab(v) }}  >
-                                        <Tab label="Params" value={'params'} />
-                                        <Tab label="Headers" value={'headers'} />
-                                        <Tab label="Body" value={'body'} />
-                                    </Tabs>
-                                    <Box border={'1px Solid'}  >
-                                        <TabPanel value={'params'} currValue={currTab} >
-                                            <QueryParamsInput formikProps={formikProps} />
-                                        </TabPanel>
-                                        <TabPanel value={'headers'} currValue={currTab} >
-                                            Show Headers
-                                        </TabPanel>
-                                        <TabPanel value={'body'} currValue={currTab} >
-                                            Show Body
-                                        </TabPanel>
-                                    </Box>
-                                </Box>
-
-
-                                {/* Response Box */}
-                                <Box position={'relative'} height={'500px'} marginTop={1} border={'1px Solid'} >
-                                    <Editor data={res} />
-                                    {
-                                        loading ? <Box
-                                            position={'absolute'}
-                                            top={0} bottom={0}
-                                            left={0} right={0}
-                                            style={{ background: 'white', opacity: 0.9 }}
-                                            display={'flex'}
-                                            justifyContent={'center'}
-                                            alignItems={'center'}
-                                        >
-                                            Loading Data...
-                                        </Box> : null
-                                    }
-                                </Box> 
-                            </Container>
-                        </div>
+                            </Box>
+                        </Box >
                     )
                 }
             }
-        </Formik >
-    );
+        </Formik>
+    )
 }
 
-
-export default Landing;
+export default Landing

@@ -27,5 +27,5 @@ export const Editor: React.FC<EditorProps> = ({ data }) => {
             editor.dispose();
         };
     }, [data]);
-    return <div style={{ height: '500px' }} ref={divEl}></div>;
+    return <div style={{ height: "100%" }} ref={divEl}></div>;
 };

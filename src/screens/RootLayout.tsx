@@ -1,7 +1,7 @@
 import React, { FC, useEffect, useState } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import FullScreenLoader from '../components/FullScreenLoader';
-import Landing from './Landing/Landing';
+import Landing from './Landing';
 
 
 const Layout: FC = () => {
