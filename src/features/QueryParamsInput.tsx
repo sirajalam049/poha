@@ -1,5 +1,5 @@
 import DeleteIcon from '@mui/icons-material/Delete';
-import { IconButton, TextField } from '@mui/material';
+import { Box, IconButton, InputBase, Typography, styled } from '@mui/material';
 import { FormikValues } from 'formik';
 import React, { FC, useState } from 'react';
 
@@ -27,19 +27,23 @@ const QueryParamsInput: FC<QueryParamsInputProps> = ({ formikProps }) => {
     };
 
     return (
-        <table style={{ "width": '100%' }} >
-            <tbody>
-                <tr style={{ display: 'flex' }} >
-                    <td style={{ flex: 1 }} >Key</td>
-                    <td style={{ flex: 1 }}>Value</td>
-                </tr>
+        <div>
+            <Box style={{ display: 'flex' }} >
+                <TabelCell style={{ borderRight: 0, }}  >
+                    <Typography variant='body1' fontWeight={500} >Key</Typography>
+                </TabelCell>
+                <TabelCell >
+                    <Typography variant='body1' fontWeight={500} >Value</Typography>
+                </TabelCell>
+            </Box>
                     {formikProps.values.params.map((param: any, index: number) => (
-                        <tr
+                        <Box
                             onMouseEnter={() => { setShowDel(index) }}
                             onMouseLeave={() => { setShowDel(-1) }}
-                            style={{ display: 'flex', position: 'relative' }} key={index}  >
-                            <td style={{ flex: 1 }}>
-                                <TextField
+                            style={{ display: 'flex', position: 'relative', height: 32, }} key={index}  >
+                            <TabelCell style={{ borderTop: 0, borderRight: 0, }} >
+                                <InputBase
+                                    sx={{ fontSize: 14 }}
                                     fullWidth
                                     name={`params[${index}].key`}
                                     value={param.key}
@@ -47,9 +51,10 @@ const QueryParamsInput: FC<QueryParamsInputProps> = ({ formikProps }) => {
                                     size='small'
                                     placeholder='Key'
                                 />
-                            </td>
-                            <td style={{ flex: 1 }}>
-                                <TextField
+                            </TabelCell>
+                            <TabelCell style={{ borderTop: 0 }}>
+                                <InputBase
+                                    sx={{ fontSize: 14 }}
                                     fullWidth
                                     name={`params[${index}].value`}
                                     value={param.value}
@@ -57,21 +62,32 @@ const QueryParamsInput: FC<QueryParamsInputProps> = ({ formikProps }) => {
                                     size='small'
                                     placeholder='Value'
                                 />
-                            </td>
-                            <td>
+                            </TabelCell>
+
                                 {
-                                    index === showDel && index < (formikProps.values.params.length - 1) ?
+                                index === showDel && index < (formikProps.values.params.length - 1) ?
+                                    <Box>
                                         <IconButton style={{ position: 'absolute', right: '6px', top: '6px' }} size='small' onClick={() => deleteRow(index)}>
                                             <DeleteIcon fontSize='small' />
                                         </IconButton>
+                                    </Box>
                                         : null
                                 }
-                            </td>
-                        </tr>
+
+                        </Box>
                     ))}
-            </tbody>
-        </table>
+        </div>
     )
 }
 
 export default QueryParamsInput
+
+const TabelCell = styled(Box)(({ theme }) => ({
+    flex: 1,
+    height: 32,
+    border: '1px solid var(--Default-Grey-2, #C7C7CC)',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    paddingLeft: 16
+}))

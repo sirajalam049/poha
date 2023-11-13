@@ -4,7 +4,6 @@ import { Formik } from 'formik';
 import React, { FC, useState } from 'react';
 import { Editor } from '../../components/Editor';
 import QueryParamsInput from '../../features/QueryParamsInput';
-import BrowserTabs from '../../components/LayoutTabs';
 
 interface TabPanelProps {
     children?: React.ReactNode;
@@ -68,7 +67,8 @@ const Landing: FC = () => {
                     return (
                         <div style={{ padding: 36 }}>
                             <Container>
-                                <BrowserTabs />
+
+                                {/* Input Box */}
                                 <Box width={'100%'} display={'flex'} >
                                     <Box>
                                         <FormControl style={{ width: 136 }} >
@@ -80,9 +80,9 @@ const Landing: FC = () => {
                                                 value={formikProps.values.method}
                                             >
                                                 {
-                                                    ['GET', 'DELETE', 'HEAD', 'OPTIONS', 'POST', 'PUT', 'PATCH', 'PURGE', 'LINK', 'UNLINK'].map((x) => (
+                                                    ['GET', 'POST', 'PUT', 'PATCH', 'DELETE',].map((x) => (
                                                         <MenuItem value={x} key={x} >{
-                                                            <Typography>{x}</Typography>
+                                                            <Typography variant='body2' >{x}</Typography>
                                                         }</MenuItem>
                                                     ))
                                                 }
@@ -97,6 +97,7 @@ const Landing: FC = () => {
                                             onChange={formikProps.handleChange}
                                             value={formikProps.values.url}
                                             fullWidth
+                                            style={{ fontSize: 14 }}
                                         />
                                     </Box>
                                     <Button color='info' disableElevation style={{ width: 100 }} variant='contained' type="submit" onClick={formikProps.submitForm} >
@@ -124,6 +125,8 @@ const Landing: FC = () => {
                                     </Box>
                                 </Box>
 
+
+                                {/* Response Box */}
                                 <Box position={'relative'} height={'500px'} marginTop={1} border={'1px Solid'} >
                                     <Editor data={res} />
                                     {

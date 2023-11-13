@@ -18,8 +18,10 @@ const theme = createTheme({
         },
         info: {
             main: 'rgb(26,115,232)'
-        }
+        },
+        text: { primary: '#48484A' }
     },
+
 });
 
 export default theme;
