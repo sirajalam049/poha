@@ -1,6 +1,17 @@
+import {
+    DndContext,
+    KeyboardSensor,
+    PointerSensor,
+    closestCenter,
+    useSensor,
+    useSensors
+} from '@dnd-kit/core';
+import { restrictToHorizontalAxis, restrictToParentElement } from '@dnd-kit/modifiers';
+import { SortableContext, arrayMove, horizontalListSortingStrategy, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
+import { Add as AddIcon, Close as CloseIcon } from '@mui/icons-material';
+import { Box, IconButton, Tab } from '@mui/material';
 import React, { useState } from 'react';
-import { Tabs, Tab, IconButton, Box } from '@mui/material';
-import { Close as CloseIcon, Add as AddIcon } from '@mui/icons-material';
+import SortableItem, { TabId } from './Tabs/SortableTab';
 
 interface DraggableTabProps {
     label: string;
@@ -34,61 +45,88 @@ const DraggableTab: React.FC<DraggableTabProps> = (props) => {
         />
     );
 };
-const BrowserTabs: React.FC = () => {
-    const [tabs, setTabs] = useState<string[]>(['Tab 1']);
-    const [activeTab, setActiveTab] = useState<number>(0);
 
-    const handleTabChange = (event: React.ChangeEvent<{}>, newActiveTab: number) => {
+let counter = 0
+
+const BrowserTabs: React.FC = () => {
+
+    const [tabs, setTabs] = useState<TabId[]>([counter++]);
+    const [activeTab, setActiveTab] = useState<TabId>(-1);
+
+    const handleTabChange = (newActiveTab: TabId) => {
         setActiveTab(newActiveTab);
     };
 
-    const handleTabClose = (index: number) => {
-        const newTabs = [...tabs];
-        newTabs.splice(index, 1);
-        setTabs(newTabs);
-        if (index === activeTab && newTabs.length > 0) {
-            setActiveTab(Math.min(index, newTabs.length - 1));
+    const handleTabClose = (id: TabId) => {
+        setTabs(tabs.filter(t => t != id));
+        const index = tabs.findIndex(t => t == id)
+        const nextIndex = tabs.length == 1 ? -1 : (index == tabs.length - 1 ? tabs[index - 1] : tabs[index + 1])
+        if (id === activeTab) {
+            setActiveTab(nextIndex);
         }
     };
 
     const handleTabAdd = () => {
-        const newTabs = [...tabs, `Tab ${tabs.length + 1}`];
-        setTabs(newTabs);
-        setActiveTab(newTabs.length - 1);
+        const newId = counter++
+        setTabs([...tabs, newId]);
+        if (activeTab == -1) {
+            setActiveTab(newId);
+        }
     };
 
-    const handleTabReorder = (event: React.DragEvent<HTMLDivElement>, tabIndex: number, newIndex: number) => {
-        const newTabs = [...tabs];
-        const movedTab = newTabs.splice(tabIndex, 1)[0];
-        newTabs.splice(newIndex, 0, movedTab);
-        setTabs(newTabs);
-        setActiveTab(newIndex);
-    };
+
+    const sensors = useSensors(
+        useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
+        })
+    );
+
+    const handleDragEnd = (event: any) => {
+        const { active, over } = event;
+
+        if (active.id !== over.id) {
+            setTabs((items) => {
+                const oldIndex = items.indexOf(active.id);
+                const newIndex = items.indexOf(over.id);
+
+                return arrayMove(items, oldIndex, newIndex);
+            });
+        }
+    }
 
     return (
-        <Box display={'flex'} >
-            <Tabs
-                value={activeTab}
-                onChange={handleTabChange}
-                variant="scrollable"
-                scrollButtons="auto"
-                aria-label="Browser Tabs"
+        <Box style={{backgroundColor: '#4a4a4a'}} >
+            <Box display={'flex'} >
+                <Box flex={1} />
+                <IconButton onClick={handleTabAdd} aria-label="Add Tab">
+                    <AddIcon />
+                </IconButton>
+            </Box>
+            <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+                modifiers={[restrictToHorizontalAxis, restrictToParentElement]}
             >
-                {tabs.map((tab, index) => (
-                    <DraggableTab
-                        onClick={(e: any) => handleTabChange(e, index)}
-                        key={index}
-                        label={tab}
-                        onDelete={() => handleTabClose(index)}
-                        onDragStart={(event) => event.dataTransfer.setData('text/plain', '')}
-                        onDrop={(event) => handleTabReorder(event, index, activeTab)}
-                        value={index}
-                    />
-                ))}
-            </Tabs>
-            <IconButton onClick={handleTabAdd} color="primary" aria-label="Add Tab">
-                <AddIcon />
-            </IconButton>
+                <SortableContext
+                    items={tabs}
+                    strategy={horizontalListSortingStrategy}
+                >
+                    <div style={{ display: "flex", height: 28, position: 'relative' }} >
+                        {tabs.map((tab) => (
+                            <SortableItem
+                                style={{ flex: 1, transition: 'ease-in-out', }}
+                                onRemove={handleTabClose}
+                                onMouseDown={() => { handleTabChange(tab) }}
+                                isActive={tab === activeTab}
+                                key={tab}
+                                tabId={tab}
+                            />
+                        ))}
+                    </div>
+                </SortableContext>
+            </DndContext>
         </Box>
     );
 };

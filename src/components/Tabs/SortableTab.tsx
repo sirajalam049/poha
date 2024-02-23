@@ -3,76 +3,87 @@ import { CSS } from '@dnd-kit/utilities';
 import { FC, useState } from 'react';
 
 
-export type TabId = number | string
+export type TabId<T extends string | number = number> = T
 
-export interface TabProps {
-    id: TabId;
+export interface TabProps<T extends TabId = TabId<number>> extends React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement> {
+    tabId: T;
     isActive?: boolean;
-    onRemove?: (id: TabId) => void
+    onRemove?: (tabId: T) => void;
 }
 
-const SortableItem: FC<TabProps> = ({ id, isActive, onRemove }: TabProps) => {
+const unselectable:React.CSSProperties = {
+    'WebkitTouchCallout': 'none',
+    'WebkitUserSelect': 'none',
+    'KhtmlUserSelect':'none',
+    'MozUserSelect': 'none',
+    'msUserSelect': 'none',
+    'userSelect': 'none',
+}
 
-    const { attributes, listeners, setNodeRef, transform, transition, } = useSortable({ id });
+const SortableItem: FC<TabProps> = ({ tabId, isActive, onRemove, ...restProps }: TabProps) => {
+
+    const { attributes, listeners, setNodeRef, transform, transition, } = useSortable({ id: tabId });
     const [tabHover, setTabHover] = useState(false)
     const [closeHover, setCLoseHover] = useState(false)
 
     const style = {
         transform: CSS.Transform.toString(transform),
         transition,
+        ...restProps.style,
     };
 
-    const tabStyle = {
-        flex: 1,
-        maxWidth: 200,
-        padding: '9px 6px',
+    const tabStyle:React.CSSProperties = {
         display: 'flex',
         alignItems: 'center',
         position: 'relative',
-        backgroundColor: tabHover ? '#f4f6f8' : 'transparent',
+        backgroundColor: tabHover ? '#383838' : '#282828',
         transition: 'ease-in-out',
-        borderRadius: '5px 5px 0px 0px',
-        minWidth: 24
+        cursor: 'default'
     }
 
-    const textContainer = {
-        color: '#45474a',
+    const textContainer:React.CSSProperties = {
+        color: '#bcc3cb',
         fontSize: 12,
         marginLeft: 8,
-        textWrap: 'no-wrap',
+        wordWrap: 'unset',
         overflow: 'ellipsis',
-        flex: 1
+        flex: 1,
+        textAlign: 'center'
     }
 
     const activeTab = {
-        backgroundColor: '#fff',
+        backgroundColor: '#4a4a4a',
         zIndex: 5
     }
 
     return (
         <div
+            {...restProps}
             onMouseEnter={e => setTabHover(true)}
             onMouseLeave={e => setTabHover(false)}
             ref={setNodeRef}
-            style={{ ...style }}
+            style={{ ...style, ...tabStyle, ...(isActive ? activeTab : {}), ...unselectable }}
             {...attributes}
             {...listeners}
         >
-
             <div style={{
                 fontSize: 12,
-                height: 16, width: 16, borderRadius: 4,
+                height: 16, width: 16, borderRadius: 2,
                 display: 'flex',
+                visibility: tabHover ? 'visible' : 'hidden',
                 alignItems: 'center',
                 justifyContent: 'center',
                 backgroundColor: closeHover ? '#dee1e5' : 'transparent',
                 transition: 'ease-in-out',
-                padding: 2
+                padding: 2,
+                marginLeft: 8,
+                color: '#bcc3cb'
             }}
                 onMouseEnter={e => setCLoseHover(true)}
                 onMouseLeave={e => setCLoseHover(false)}
 
-                onClick={() => onRemove?.(id)} >&#10005;</div>
+                onClick={() => onRemove?.(tabId)} >&#10005;</div>
+            <div style={{ ...textContainer }} >{tabId + " New Tab"}</div>
         </div>
     );
 }
