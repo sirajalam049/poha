@@ -1,5 +1,5 @@
 import { Box, Button, Container, FormControl, MenuItem, Select, Tab, Tabs, TextField, Typography } from '@mui/material';
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { Formik } from 'formik';
 import React, { FC, useState } from 'react';
 import { Editor } from '../../components/Editor';
@@ -37,8 +37,8 @@ function TabPanel(props: TabPanelProps) {
 const Landing: FC = () => {
 
     const [currTab, setCurrTab] = useState('params')
-    const [res, setRes] = useState();
     const [loading, setLoading] = useState(false)
+    const [res, setRes] = useState<AxiosResponse>();
 
     return (
         <Formik
@@ -50,7 +50,6 @@ const Landing: FC = () => {
             }}
             onSubmit={async (data) => {
                 try {
-                    setLoading(true)
                     const params = data.params.reduce(
                         (obj, item) => {
                             if (item.key && item.value) obj[item.key] = item.value
@@ -59,7 +58,6 @@ const Landing: FC = () => {
                     const res = await axios.request({ url: data.url, data: data.body, params, method: data.method, })
                     setRes(res.data)
                 } catch (err) { console.log({ err }) }
-                finally { setLoading(false) }
 
             }}
         >
